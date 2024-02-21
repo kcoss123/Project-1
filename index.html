@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tic Tac Toe</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Menu Screen -->
+    <div class="menu">
+        <h1>Tic Tac Toe</h1>
+        <button id="pvp-button">Player vs Player</button>
+        <button id="pvc-easy-button">Player vs Computer (Easy)</button>
+        <button id="pvc-expert-button">Player vs Computer (Expert)</button>
+    </div>
+
+    <!-- Game Board -->
+    <div class="game">
+        <table>
+           <tr>
+            <td class="cell" id="0"></td>
+            <td class="cell" id="1"></td>
+            <td class="cell" id="2"></td>
+           </tr>
+           <tr>
+            <td class="cell" id="3"></td>
+            <td class="cell" id="4"></td>
+            <td class="cell" id="5"></td>
+           </tr>
+           <tr>
+            <td class="cell" id="6"></td>
+            <td class="cell" id="7"></td>
+            <td class="cell" id="8"></td>
+           </tr>
+        </table>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div class="endgame">
+        <div class="text"></div>
+        <button class="replay-button">Replay</button>
+        <button class="menu-button">Main Menu</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
