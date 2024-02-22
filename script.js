@@ -1,246 +1,239 @@
-// Define global variables
-var originalBoard;
-const humanPlayer = 'O';
-const aiPlayer = 'X';
-const winningCombos = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6]
-];
-
-// Select all cells on the game board
-const cells = document.querySelectorAll('.cell');
-
-// Default to false, meaning player vs computer
-let twoPlayerMode = false;
-
-// to keep track of whose turn it is in two-player mode
-let turnCount = 0;
-
-// Define a global variable to store the current mode
-let currentMode = '';
-
-// Add event listeners when the DOM content is loaded
-document.addEventListener("DOMContentLoaded", function () {
-    // Add event listeners to menu buttons
-    document.getElementById('pvp-button').addEventListener('click', function () {
-        startGame('pvp'); // Start the game with the selected mode
-    });
-    document.getElementById('pvc-easy-button').addEventListener('click', function () {
-        startGame('pvc-easy'); // Start the game with the selected mode
-    });
-    document.getElementById('pvc-expert-button').addEventListener('click', function () {
-        startGame('pvc-expert'); // Start the game with the selected mode
-    });
-
-    // Add event listeners to endgame buttons
-    document.querySelector(".endgame .replay-button").addEventListener('click', resetGame);
-    document.querySelector(".endgame .menu-button").addEventListener('click', returnToMenu);
-});
-
-// Function to start the game
-function startGame(mode) {
-    // Set the current mode to the selected mode
-    currentMode = mode;
-
-    // Hide the menu and display the game board
-    document.querySelector(".menu").style.display = "none";
-    document.querySelector(".game").style.display = "block";
-
-    // Initialize the game based on the selected mode
-    if (mode === 'pvp') {
-        twoPlayerMode = true;
-    } else if (mode === 'pvc-easy' || mode === 'pvc-expert') {
-        twoPlayerMode = false;
-    }
-    // Reset the game
-    resetGame();
-}
-
-// Function to reset the game
-function resetGame() {
-    // Reset the game board and other necessary variables
-    originalBoard = Array.from(Array(9).keys());
-    turnCount = 0;
-
-    // Reset the display of the game board cells
-    for (var i = 0; i < cells.length; i++) {
-        cells[i].innerText = '';
-        cells[i].style.removeProperty('background-color');
-        cells[i].addEventListener('click', turnClick, false);
+class TicTacToe {
+    constructor() {
+        this.originalBoard = [];
+        this.humanPlayer = 'O';
+        this.aiPlayer = 'X';
+        this.winningCombos = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+        this.cells = document.querySelectorAll('.cell');
+        this.twoPlayerMode = false;
+        this.turnCount = 0;
+        this.currentMode = '';
+        this.init();
     }
 
-    // Hide the endgame message and buttons
-    document.querySelector(".endgame").style.display = "none";
-    document.querySelector(".endgame .replay-button").style.display = "none";
-    document.querySelector(".endgame .menu-button").style.display = "none";
-}
 
-// Function called when a cell is clicked
-function turnClick(square) {
+    init() {
+        // Add event listeners to cells only once during initialization
+        this.cells.forEach(cell => {
+            cell.addEventListener('click', (event) => this.turnClick(event), false);
+        });
 
-    if (twoPlayerMode) {
-        // Two-player mode
-        if (typeof originalBoard[square.target.id] == 'number') {
-            let currentPlayer = 'X'; // Assume X starts
-            if (turnCount % 2 === 1) {
-                currentPlayer = 'O';
-            }
-            turn(square.target.id, currentPlayer);
-            turnCount++;
+        // Add event listeners to menu buttons
+        document.getElementById('pvp-button').addEventListener('click', () => this.startGame('pvp'));
+        document.getElementById('pvc-easy-button').addEventListener('click', () => this.startGame('pvc-easy'));
+        document.getElementById('pvc-expert-button').addEventListener('click', () => this.startGame('pvc-expert'));
+
+        // Add event listeners to symbol selection buttons
+        document.getElementById('selectX').addEventListener('click', () => this.selectSym('X'));
+        document.getElementById('selectO').addEventListener('click', () => this.selectSym('O'));
+
+        // Add event listeners to endgame buttons
+        document.querySelector(".endgame .replay-button").addEventListener('click', () => this.resetGame());
+        document.querySelector(".endgame .menu-button").addEventListener('click', () => this.returnToMenu());
+    }
+
+    selectSym(sym) {
+        this.humanPlayer = sym;
+        this.aiPlayer = sym === 'O' ? 'X' : 'O';
+        this.originalBoard = Array.from(Array(9).keys());
+
+        if (this.aiPlayer === 'X') {
+            this.turn(this.bestSpot(), this.aiPlayer);
         }
-    } else {
-        // Player vs Computer mode
-        if (typeof originalBoard[square.target.id] == 'number') {
-            turn(square.target.id, humanPlayer);
-            if (!checkTie()) {
-                turn(bestSpot(currentMode), aiPlayer);
+        document.querySelector('.selectSym').style.display = "none";
+        // Show the mode buttons after the symbol is selected
+        document.getElementById('pvp-button').style.display = 'block';
+        document.getElementById('pvc-easy-button').style.display = 'block';
+        document.getElementById('pvc-expert-button').style.display = 'block';
+    }
+
+    startGame(mode) {
+        this.currentMode = mode;
+        document.querySelector(".menu").style.display = "none";
+        document.querySelector(".game").style.display = "block";
+
+        if (mode === 'pvp') {
+            this.twoPlayerMode = true;
+        } else if (mode === 'pvc-easy' || mode === 'pvc-expert') {
+            this.twoPlayerMode = false;
+        }
+        this.resetGame();
+    }
+
+    resetGame() {
+        this.originalBoard = Array.from(Array(9).keys());
+        this.turnCount = 0;
+
+        this.cells.forEach(cell => {
+            cell.innerText = '';
+            cell.style.removeProperty('background-color');
+            cell.addEventListener('click', (event) => this.turnClick(event), false);
+        });
+
+        document.querySelector(".endgame").style.display = "none";
+        document.querySelector(".endgame .replay-button").style.display = "none";
+        document.querySelector(".endgame .menu-button").style.display = "none";
+    }
+
+    turnClick(square) {
+        if (this.twoPlayerMode) {
+            if (typeof this.originalBoard[square.target.id] == 'number') {
+                let currentPlayer = 'X';
+                if (this.turnCount % 2 === 1) {
+                    currentPlayer = 'O';
+                }
+                this.turn(square.target.id, currentPlayer);
+                this.turnCount++;
+            }
+        } else {
+            if (typeof this.originalBoard[square.target.id] == 'number' && !this.checkWin(this.originalBoard, this.humanPlayer)) {
+                this.turn(square.target.id, this.humanPlayer);
+                if (!this.checkWin(this.originalBoard, this.humanPlayer) && !this.checkTie()) {
+                    this.turn(this.bestSpot(this.currentMode), this.aiPlayer);
+                }
             }
         }
     }
-}
 
-// Function to make a move
-function turn(squareId, player) {
-    originalBoard[squareId] = player;
-    document.getElementById(squareId).innerText = player;
-    let gameWon = checkWin(originalBoard, player);
-    if (gameWon) {
-        gameOver(gameWon);
-    } else if (checkTie()) {
-        // If it's a tie, show endgame buttons
+
+    turn(squareId, player) {
+        this.originalBoard[squareId] = player;
+        document.getElementById(squareId).innerText = player;
+        let gameWon = this.checkWin(this.originalBoard, player);
+        if (gameWon) {
+            this.gameOver(gameWon);
+        } else if (this.checkTie()) {
+            document.querySelector(".endgame .replay-button").style.display = "inline-block";
+            document.querySelector(".endgame .menu-button").style.display = "inline-block";
+        }
+    }
+
+    checkWin(board, player) {
+        let plays = board.reduce((a, e, i) =>
+            (e === player) ? a.concat(i) : a, []);
+        let gameWon = null;
+        for (let [index, win] of this.winningCombos.entries()) {
+            if (win.every(elem => plays.indexOf(elem) > -1)) {
+                gameWon = { index: index, player: player };
+                break;
+            }
+        }
+        return gameWon;
+    }
+
+    gameOver(gameWon) {
+        for (let index of this.winningCombos[gameWon.index]) {
+            document.getElementById(index).style.backgroundColor =
+                gameWon.player == this.humanPlayer ? "blue" : "red";
+        }
+        this.cells.forEach(cell => {
+            cell.removeEventListener('click', (event) => this.turnClick(event), false);
+        });
+        this.declareWinner(gameWon.player == this.humanPlayer ? "You win!" : "You lose.")
+    }
+
+    declareWinner(who) {
+        document.querySelector(".endgame").style.display = "block";
+        document.querySelector(".endgame .text").innerText = who;
         document.querySelector(".endgame .replay-button").style.display = "inline-block";
         document.querySelector(".endgame .menu-button").style.display = "inline-block";
     }
-}
 
-// Function to check if a player has won
-function checkWin(board, player) {
-    let plays = board.reduce((a, e, i) =>
-        (e === player) ? a.concat(i) : a, []);
-    let gameWon = null;
-    for (let [index, win] of winningCombos.entries()) {
-        if (win.every(elem => plays.indexOf(elem) > -1)) {
-            gameWon = {index: index, player: player};
-            break;
-        }
+    returnToMenu() {
+        document.querySelector(".endgame").style.display = "none";
+        document.querySelector(".menu").style.display = "block";
+        document.querySelector(".game").style.display = "none";
+        document.querySelector('.selectSym').style.display = "block";
+        document.getElementById('pvp-button').style.display = 'none';
+        document.getElementById('pvc-easy-button').style.display = 'none';
+        document.getElementById('pvc-expert-button').style.display = 'none';
     }
-    return gameWon;
-}
 
-// Function called when the game is over
-function gameOver(gameWon) {
-    for (let index of winningCombos[gameWon.index]) {
-        document.getElementById(index).style.backgroundColor =
-            gameWon.player == humanPlayer ? "blue" : "red";
+    emptySquares() {
+        return this.originalBoard.filter(s => typeof s == 'number');
     }
-    for (var i = 0; i < cells.length; i++) {
-        cells[i].removeEventListener('click', turnClick, false);
-    }
-    declareWinner(gameWon.player == humanPlayer ? "You win!" : "You lose.")
-}
 
-// Function to declare the winner
-function declareWinner(who) {
-    document.querySelector(".endgame").style.display = "block";
-    document.querySelector(".endgame .text").innerText = who;
-    // Update the buttons
-    document.querySelector(".endgame .replay-button").style.display = "inline-block";
-    document.querySelector(".endgame .menu-button").style.display = "inline-block";
-}
-
-// Function to return to the main menu
-function returnToMenu() {
-    // Reset the game state or perform any necessary actions
-    document.querySelector(".endgame").style.display = "none"; // Hide the endgame message
-    document.querySelector(".menu").style.display = "block"; // Show the main menu
-    document.querySelector(".game").style.display = "none";
-}
-
-// Function to return empty squares
-function emptySquares() {
-    return originalBoard.filter(s => typeof s == 'number');
-}
-
-// Function to find the best spot for the computer to play
-function bestSpot(mode) {
-    
-    if (mode === 'pvc-easy') {
-        // For player vs computer easy mode, select a random available spot
-        let availableSpots = emptySquares();
-        return availableSpots[Math.floor(Math.random() * availableSpots.length)];
-    } else {
-        // For player vs computer expert mode, select the best spot using minimax
-        return minimax(originalBoard, aiPlayer).index;
-    }
-}
-
-// Function to check if the game is a tie
-function checkTie() {
-    if (emptySquares().length == 0) {
-        for (var i = 0; i < cells.length; i++) {
-            cells[i].style.backgroundColor = "green";
-            cells[i].removeEventListener('click', turnClick, false);
-        }
-        declareWinner("Tie Game!")
-        return true;
-    }
-    return false;
-}
-
-// Function implementing the minimax algorithm
-function minimax(newBoard, player) {
-    var availableSpots = emptySquares(newBoard);
-
-    if (checkWin(newBoard, player)){
-        return {score: -10};
-    } else if (checkWin(newBoard, aiPlayer)){
-        return {score: 20};
-    } else if (availableSpots.length === 0) {
-        return {score: 0}
-    }
-    var moves = [];
-    for (var i = 0; i < availableSpots.length; i++) {
-        var move = {};
-        move.index = newBoard[availableSpots[i]];
-        newBoard[availableSpots[i]] = player;
-
-        if (player == aiPlayer) {
-            var result = minimax(newBoard, humanPlayer);
-            move.score = result.score;
+    bestSpot(mode) {
+        if (mode === 'pvc-easy') {
+            let availableSpots = this.emptySquares();
+            return availableSpots[Math.floor(Math.random() * availableSpots.length)];
         } else {
-            var result = minimax(newBoard, aiPlayer);
-            move.score = result.score;
-        }
-
-        newBoard[availableSpots[i]] = move.index;
-
-        moves.push(move);
-    }
-
-    var bestMove;
-    if(player === aiPlayer) {
-        var bestScore = -10000;
-        for(var i = 0; i < moves.length; i++){
-            if (moves[i].score > bestScore) {
-                bestScore = moves[i].score;
-                bestMove = i;
-            }
-        }
-    } else {
-        var bestScore = 10000;
-        for(var i = 0; i < moves.length; i++) {
-            if (moves[i].score < bestScore) {
-                bestScore = moves[i].score;
-                bestMove = i;
-            }
+            return this.minimax(this.originalBoard, this.aiPlayer).index;
         }
     }
 
-    return moves[bestMove];
+    checkTie() {
+        if (this.emptySquares().length == 0) {
+            this.cells.forEach(cell => {
+                cell.style.backgroundColor = "green";
+                cell.removeEventListener('click', (event) => this.turnClick(event), false);
+            });
+            this.declareWinner("Tie Game!")
+            return true;
+        }
+        return false;
+    }
+
+    minimax(newBoard, player) {
+        var availableSpots = this.emptySquares(newBoard);
+
+        if (this.checkWin(newBoard, player)){
+            return {score: -10};
+        } else if (this.checkWin(newBoard, this.aiPlayer)){
+            return {score: 20};
+        } else if (availableSpots.length === 0) {
+            return {score: 0}
+        }
+        var moves = [];
+        for (var i = 0; i < availableSpots.length; i++) {
+            var move = {};
+            move.index = newBoard[availableSpots[i]];
+            newBoard[availableSpots[i]] = player;
+
+            if (player == this.aiPlayer) {
+                var result = this.minimax(newBoard, this.humanPlayer);
+                move.score = result.score;
+            } else {
+                var result = this.minimax(newBoard, this.aiPlayer);
+                move.score = result.score;
+            }
+
+            newBoard[availableSpots[i]] = move.index;
+
+            moves.push(move);
+        }
+
+        var bestMove;
+        if(player === this.aiPlayer) {
+            var bestScore = -10000;
+            for(var i = 0; i < moves.length; i++){
+                if (moves[i].score > bestScore) {
+                    bestScore = moves[i].score;
+                    bestMove = i;
+                }
+            }
+        } else {
+            var bestScore = 10000;
+            for(var i = 0; i < moves.length; i++) {
+                if (moves[i].score < bestScore) {
+                    bestScore = moves[i].score;
+                    bestMove = i;
+                }
+            }
+        }
+
+        return moves[bestMove];
+    }
 }
+
+// Instantiate the game
+const game = new TicTacToe();
