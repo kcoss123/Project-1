@@ -114,12 +114,6 @@ class TicTacToe {
             cell.addEventListener('click', (event) => this.turnClick(event), false);
         });
     
-        // Clear player names if they exist
-        if (this.twoPlayerMode) {
-            document.getElementById('player1-name').innerText = '';
-            document.getElementById('player2-name').innerText = '';
-        }
-    
         // Hide endgame message and buttons
         document.querySelector(".endgame").style.display = "none";
         document.querySelector(".endgame .replay-button").style.display = "none";
