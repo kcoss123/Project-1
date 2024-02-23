@@ -1,53 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Tic Tac Toe</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8"> <!-- Character encoding -->
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Responsive viewport -->
+    <title>Tic Tac Toe</title> <!-- Title of the HTML document -->
+    <link rel="stylesheet" href="style.css"> <!-- Link to external CSS file -->
 </head>
 <body>
     <!-- Menu Screen -->
-    <div class="menu">
-        <h1>Tic Tac Toe</h1>
+    <div class="menu"> <!-- Game options -->
+        <h1>Tic Tac Toe</h1> <!-- Title -->
         <div class="selectSym">
-            <p>Select symbol:</p>
-            <button id="selectX">X</button>
-            <button id="selectO">O</button>
+            <p>Select symbol:</p> <!-- Symbol selection prompt -->
+            <button id="selectX">X</button> <!-- Select X symbol -->
+            <button id="selectO">O</button> <!-- Select O symbol -->
         </div>
-        <button id="pvp-button">Player vs Player</button>
-        <button id="pvc-easy-button">Player vs Computer (Easy)</button>
-        <button id="pvc-expert-button">Player vs Computer (Expert)</button>
+        <button id="pvp-button">Player vs Player</button> <!-- Player vs player game -->
+        <button id="pvc-easy-button">Player vs Computer (Easy)</button> <!-- Player vs easy computer game -->
+        <button id="pvc-expert-button">Player vs Computer (Expert)</button> <!-- Player vs expert computer game -->
     </div>
 
     <!-- Game Board -->
-    <div class="game">
-        <table>
-           <tr>
-            <td class="cell" id="0"></td>
+    <div class="game"> <!-- Tic Tac Toe grid -->
+        <!-- Display player names on the upper opposite corners -->
+        <div class="player-names">
+            <div id="player1-name" class="player-name"></div>
+            <div id="player2-name" class="player-name"></div>
+        </div>
+
+        <!-- Add points display for players -->
+        <div class="player-points">
+            <div id="player1-points" class="points">0</div>
+            <div id="player2-points" class="points">0</div>
+        </div>
+
+        <table> <!-- Table for the grid -->
+        <tr>
+            <td class="cell" id="0"></td> <!-- Cells for positions -->
             <td class="cell" id="1"></td>
             <td class="cell" id="2"></td>
-           </tr>
-           <tr>
+        </tr>
+        <tr>
             <td class="cell" id="3"></td>
             <td class="cell" id="4"></td>
             <td class="cell" id="5"></td>
-           </tr>
-           <tr>
+        </tr>
+        <tr>
             <td class="cell" id="6"></td>
             <td class="cell" id="7"></td>
             <td class="cell" id="8"></td>
-           </tr>
+        </tr>
         </table>
     </div>
 
     <!-- Game Over Screen -->
-    <div class="endgame">
-        <div class="text"></div>
-        <button class="replay-button">Replay</button>
-        <button class="menu-button">Main Menu</button>
+    <div class="endgame"> <!-- Endgame display -->
+        <div class="text"></div> <!-- Game result text -->
+        <button class="replay-button">Replay</button> <!-- Replay button -->
+        <button class="menu-button">Main Menu</button> <!-- Main menu button -->
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js"></script> <!-- Link to external JavaScript file -->
 </body>
 </html>
